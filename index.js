@@ -44,7 +44,22 @@ async function run() {
     //await client.connect();
 
     const database = client.db("donateLifeDB");
-    
+    const locationsCollection = database.collection("locations");
+
+    // location related api
+    app.get("/locations", async(req, res) => {
+      try {
+        // Fetch all users from the locations collection
+        const result = await locationsCollection.find().toArray();
+        // Send the result back to the client
+        res.send(result);
+      } catch (error) {
+        // Handle any errors that occurred during the process
+        console.error('Error fetching locations:', error);
+        // Send an error response back to the client
+        res.status(500).send({ error: 'An error occurred while fetching locations.' });
+      }
+    })
     
     // Send a ping to confirm a successful connection
     //await client.db("admin").command({ ping: 1 });
