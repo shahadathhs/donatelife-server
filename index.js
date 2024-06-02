@@ -47,6 +47,7 @@ async function run() {
     const locationsCollection = database.collection("location");
     const usersCollection = database.collection("users");
     const contactUsCollection = database.collection("contactUs");
+    const blogsCollection = database.collection("blogs")
 
     // jwt related api
     app.post('/jwt', async (req, res) => {
@@ -231,6 +232,18 @@ async function run() {
       };
       const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result)
+    })
+
+    //blog related api
+    app.post("/blogs", verifyToken, verifyAdminVolunteer, async(req, res) => {
+      try {
+        const user = req.body;
+        const result = await blogsCollection.insertOne(user);
+        res.send(result);
+      } catch (error) {
+        console.error('Error inserting blog:', error);
+        res.status(500).send({ error: 'An error occurred while inserting the blog.' });
+      }
     })
 
     // location related api
