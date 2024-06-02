@@ -117,7 +117,7 @@ async function run() {
         res.status(500).send({ message: 'Internal Server Error', error: error.message });
       }
     })
-    // for isAdmin hook
+    // for useAdmin hook
     app.get('/users/admin/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
 
@@ -133,6 +133,22 @@ async function run() {
       }
       res.send({ admin });
     })
+    // for useAdminVolunteer hook
+    app.get('/users/adminVolunteer/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
+    
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'Forbidden' });
+      }
+    
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      let adminVolunteer = false;
+      if (user) {
+        adminVolunteer = user.role === 'admin' || user.role === 'volunteer';
+      }
+      res.send({ adminVolunteer });
+    });    
     // for registration page
     app.post("/users", async(req, res) => {
       const user = req.body;
