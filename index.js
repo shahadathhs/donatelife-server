@@ -93,7 +93,6 @@ async function run() {
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
-    
     //for dashboard role
     app.get("/users/:email", verifyToken, async (req, res) => {
       try {
@@ -155,6 +154,54 @@ async function run() {
         // Send an error response back to the client
         res.status(500).send({ error: 'An error occurred while inserting the user.' });
       }
+    })
+    // making donor/ volunteer admin
+    app.patch("/users/admin/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          role: 'admin'
+        },
+      };
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+    // making donor volunteer
+    app.patch("/users/volunteer/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          role: 'volunteer'
+        },
+      };
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+    // making active blocked
+    app.patch("/users/blocked/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'blocked'
+        },
+      };
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+    // making blocked active
+    app.patch("/users/active/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'active'
+        },
+      };
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result)
     })
 
     // location related api
