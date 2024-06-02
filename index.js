@@ -82,6 +82,18 @@ async function run() {
       }
       next();
     }
+    // use verify adminVolunteer after verifyToken
+    const verifyAdminVolunteer = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+    
+      const isAdminVolunteer = user?.role === 'admin' || user?.role === 'volunteer';
+      if (!isAdminVolunteer) {
+        return res.status(403).send({ message: 'Forbidden' });
+      }
+      next();
+    }
 
     // user related api
     // for all users page (to load all users)
