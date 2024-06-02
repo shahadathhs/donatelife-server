@@ -83,16 +83,55 @@ async function run() {
     // }
 
     // user related api
-    app.post('/users', async (req, res) => {
-      const user = req.body;
-      const query = { email: user.email }
-      const existingUser = await usersCollection.findOne(query);
-      if (existingUser) {
-        return res.send({ message: 'user already exists', insertedId: null })
+    app.get("/users", async(req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.get("/users/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        console.log("Received email parameter:", email);
+        const query = { email: email };
+        console.log("Executing query to find user:", query);
+    
+        // Search for the user in the database
+        const user = await usersCollection.findOne(query);
+        if (user) {
+          console.log("User found:", user);
+        } else {
+          console.log("No user found with the provided email.");
+        }
+        res.send(user);
+      } catch (error) {
+        console.error("Error occurred during user retrieval:", error);
+        res.status(500).send({ message: 'Internal Server Error', error: error.message });
       }
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
     });
+    
+
+    app.post("/users", async(req, res) => {
+      const user = req.body;
+      try {
+        // Construct a query object to find a user with the provided email
+        const query = { email: user.email };
+        // Check if a user with the provided email already exists
+        const existingUser = await usersCollection.findOne(query);
+        // If the user already exists, send a message indicating this
+        if (existingUser) {
+          return res.send({ message: "User already exists", insertedId: null });
+        }
+        // If the user does not exist, insert the new user into the collection
+        const result = await usersCollection.insertOne(user);
+        // Send the result of the insert operation back to the client
+        res.send(result);
+      } catch (error) {
+        // Handle any errors that occurred during the process
+        console.error('Error inserting user:', error);
+        // Send an error response back to the client
+        res.status(500).send({ error: 'An error occurred while inserting the user.' });
+      }
+    })
 
     // location related api
     app.get("/location", async(req, res) => {
