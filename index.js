@@ -55,20 +55,20 @@ async function run() {
     })
 
     // middlewares 
-    // const verifyToken = (req, res, next) => {
-    //   // console.log('inside verify token', req.headers.authorization);
-    //   if (!req.headers.authorization) {
-    //     return res.status(401).send({ message: 'unauthorized access' });
-    //   }
-    //   const token = req.headers.authorization.split(' ')[1];
-    //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    //     if (err) {
-    //       return res.status(401).send({ message: 'unauthorized access' })
-    //     }
-    //     req.decoded = decoded;
-    //     next();
-    //   })
-    // }
+    const verifyToken = (req, res, next) => {
+      console.log('inside verify token', req.headers.authorization);
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: 'unauthorized access' });
+      }
+      const token = req.headers.authorization.split(' ')[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: 'unauthorized access' })
+        }
+        req.decoded = decoded;
+        next();
+      })
+    }
 
     // use verify admin after verifyToken
     // const verifyAdmin = async (req, res, next) => {
@@ -88,7 +88,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/users/:email", async (req, res) => {
+    app.get("/users/:email", verifyToken, async (req, res) => {
       try {
         const email = req.params.email;
         console.log("Received email parameter:", email);
