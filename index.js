@@ -235,6 +235,7 @@ async function run() {
     })
 
     //blog related api
+    // for add blogs
     app.post("/blogs", verifyToken, verifyAdminVolunteer, async(req, res) => {
       try {
         const user = req.body;
@@ -245,7 +246,40 @@ async function run() {
         res.status(500).send({ error: 'An error occurred while inserting the blog.' });
       }
     })
-
+    // for load blogs
+    app.get("/blogs",  async (req, res) => {
+      const { status } = req.query;
+      let query = {};
+      if (status && status !== 'all') {
+        query.status = status;
+      }
+      const result = await blogsCollection.find(query).toArray();
+      res.send(result);
+    })
+    // making draft published
+    app.patch("/users/published/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'published'
+        },
+      };
+      const result = await blogsCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+    // making published draft
+    app.patch("/users/draft/:id", verifyToken, verifyAdmin, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'draft'
+        },
+      };
+      const result = await blogsCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
     // location related api
     // for all location select
     app.get("/location", async(req, res) => {
