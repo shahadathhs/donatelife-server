@@ -56,7 +56,7 @@ async function run() {
 
     // middlewares 
     const verifyToken = (req, res, next) => {
-      console.log('inside verify token', req.headers.authorization);
+      //console.log('inside verify token', req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: 'Unauthorized' });
       }
@@ -83,11 +83,18 @@ async function run() {
     }
 
     // user related api
-    app.get("/users", verifyToken, verifyAdmin, async(req, res) => {
-      const result = await usersCollection.find().toArray();
-      res.send(result)
-    })
-
+    // for all users page (to load all users)
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
+      const { status } = req.query;
+      let query = {};
+      if (status && status !== 'all') {
+        query.status = status;
+      }
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
+    
+    //for dashboard role
     app.get("/users/:email", verifyToken, async (req, res) => {
       try {
         const email = req.params.email;
@@ -110,7 +117,7 @@ async function run() {
         res.status(500).send({ message: 'Internal Server Error', error: error.message });
       }
     })
-
+    // for isAdmin hook
     app.get('/users/admin/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
 
@@ -126,7 +133,7 @@ async function run() {
       }
       res.send({ admin });
     })
-    
+    // for registration page
     app.post("/users", async(req, res) => {
       const user = req.body;
       try {
@@ -151,6 +158,7 @@ async function run() {
     })
 
     // location related api
+    // for all location select
     app.get("/location", async(req, res) => {
       try {
         // Fetch all users from the locations collection
