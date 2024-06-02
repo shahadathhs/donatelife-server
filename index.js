@@ -46,6 +46,7 @@ async function run() {
     const database = client.db("donateLifeDB");
     const locationsCollection = database.collection("location");
     const usersCollection = database.collection("users");
+    const contactUsCollection = database.collection("contactUs");
 
     // jwt related api
     app.post('/jwt', async (req, res) => {
@@ -218,6 +219,14 @@ async function run() {
         // Send an error response back to the client
         res.status(500).send({ error: 'An error occurred while fetching locations.' });
       }
+    })
+
+    // contact us related api
+    // for message
+    app.post("/contactUs", async(req,res) => {
+      const contact = req.body;
+      const result = await contactUsCollection.insertOne(contact)
+      res.send(result)
     })
     
     // Send a ping to confirm a successful connection
