@@ -238,16 +238,16 @@ async function run() {
     // for add blogs
     app.post("/blogs", verifyToken, verifyAdminVolunteer, async(req, res) => {
       try {
-        const user = req.body;
-        const result = await blogsCollection.insertOne(user);
+        const blog = req.body;
+        const result = await blogsCollection.insertOne(blog);
         res.send(result);
       } catch (error) {
         console.error('Error inserting blog:', error);
         res.status(500).send({ error: 'An error occurred while inserting the blog.' });
       }
     })
-    // for load blogs
-    app.get("/blogs",  async (req, res) => {
+    // for load blogs in dashboard
+    app.get("/dashboard/blogs", verifyToken, verifyAdminVolunteer, async (req, res) => {
       const { status } = req.query;
       let query = {};
       if (status && status !== 'all') {
@@ -255,6 +255,18 @@ async function run() {
       }
       const result = await blogsCollection.find(query).toArray();
       res.send(result);
+    })
+    // for load blogs in blogs page
+    app.get("/blogs", async (req, res) => {
+      const result = await blogsCollection.find().toArray()
+      res.send(result)
+    })
+    // for blogDetails page
+    app.get("/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const result = await blogsCollection.findOne(query)
+      res.send(result)
     })
     // making draft published
     app.patch("/users/published/:id", verifyToken, verifyAdmin, async(req, res) => {
