@@ -47,7 +47,8 @@ async function run() {
     const locationsCollection = database.collection("location");
     const usersCollection = database.collection("users");
     const contactUsCollection = database.collection("contactUs");
-    const blogsCollection = database.collection("blogs")
+    const blogsCollection = database.collection("blogs");
+    const donationRequestsCollection = database.collection("donationRequests")
 
     // jwt related api
     app.post('/jwt', async (req, res) => {
@@ -292,6 +293,7 @@ async function run() {
       const result = await blogsCollection.updateOne(query, updateDoc);
       res.send(result)
     })
+    
     // location related api
     // for all location select
     app.get("/location", async(req, res) => {
@@ -305,6 +307,19 @@ async function run() {
         console.error('Error fetching locations:', error);
         // Send an error response back to the client
         res.status(500).send({ error: 'An error occurred while fetching locations.' });
+      }
+    })
+
+    // blood donation request related api
+    // for making request
+    app.post("/donationRequests", async(req, res) => {
+      try {
+        const donationRequest = req.body;
+        const result = await donationRequestsCollection.insertOne(donationRequest);
+        res.send(result);
+      } catch (error) {
+        console.error('Error inserting blog:', error);
+        res.status(500).send({ error: 'An error occurred while inserting the blog.' });
       }
     })
 
