@@ -235,6 +235,29 @@ async function run() {
       res.send(result)
     })
 
+    // search related api
+    app.get('/donors', async (req, res) => {
+      const { role, bloodGroup, district, upazila } = req.query;
+      let query = { role };
+    
+      if (bloodGroup) {
+        query.bloodGroup = bloodGroup
+      };
+      if (district) {
+        query.district = district
+      };
+      if (upazila) {
+        query.upazila = upazila
+      };
+    
+      try {
+        const result = await usersCollection.find(query).toArray();
+        res.status(200).send(result);
+      } catch (error) {
+        res.status(500).send({ message: 'Error fetching donors', error });
+      }
+    });
+
     //blog related api
     // for add blogs
     app.post("/blogs", verifyToken, verifyAdminVolunteer, async(req, res) => {
