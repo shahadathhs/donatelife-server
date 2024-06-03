@@ -367,6 +367,21 @@ async function run() {
       const result = await donationRequestsCollection.findOne(query)
       res.send(result)
     })
+    // for making donation inprogress
+    app.patch("/donationRequests/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const { donorName, donorEmail } = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          status: 'inprogress',
+          donorName,
+          donorEmail
+        }
+      };
+      const result = await donationRequestsCollection.updateOne(query, update);
+      res.send(result)
+    })
     
 
     // contact us related api
