@@ -234,8 +234,7 @@ async function run() {
       const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result)
     })
-
-    // search related api
+    // search page 
     app.get('/donors', async (req, res) => {
       const { role, bloodGroup, district, upazila } = req.query;
       let query = { role };
@@ -345,6 +344,30 @@ async function run() {
         res.status(500).send({ error: 'An error occurred while inserting the blog.' });
       }
     })
+    // for pending donation request
+    app.get("/pendingRequests", async (req, res) => {
+      const { status } = req.query;
+      let query = {};
+
+      if (status) {
+        query.status = status;
+      }
+
+      try {
+        const result = await donationRequestsCollection.find(query).toArray();
+        res.status(200).send(result);
+      } catch (error) {
+        res.status(500).send({ message: 'Error fetching pending requests', error });
+      }
+    })
+    // for donationDetails page
+    app.get("/donationRequests/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const result = await donationRequestsCollection.findOne(query)
+      res.send(result)
+    })
+    
 
     // contact us related api
     // for message
