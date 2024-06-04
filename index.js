@@ -384,6 +384,21 @@ async function run() {
       } catch (error) {
         res.status(500).send({ error: 'An error occurred while fetching the donation requests.' });
       }
+    });
+    // all donation request
+    app.get("/allDonationRequests", verifyToken, verifyAdminVolunteer, async (req, res) => {
+      const status = req.query.status;
+      let query = {};
+  
+      if (status && status !== 'all') {
+          query.status = status;
+      }
+      try {
+          const result = await donationRequestsCollection.find(query).toArray();
+          res.send(result);
+      } catch (error) {
+          res.status(500).send({ error: 'An error occurred while fetching the donation requests.' });
+      }
   });
   
     // for donationDetails page
