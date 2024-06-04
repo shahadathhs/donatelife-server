@@ -520,6 +520,61 @@ async function run() {
       const result = await paymentsCollection.find().toArray();
       res.send(result)
     })
+
+    // dash board stats for admin and volunteer
+    // stats related api
+    // app.get("/admin-stats", verifyToken, verifyAdmin, async(req, res) => {
+    //   const users = await usersCollection.estimatedDocumentCount();
+    //   const donationRequests = await donationRequestsCollection.estimatedDocumentCount();
+    //   const fundingContributor = await paymentsCollection.estimatedDocumentCount();
+
+    //   const result = await paymentsCollection.aggregate([
+    //     {
+    //       $group: {
+    //         _id: null,
+    //         totalRevenue: { $sum: '$fundAmount'}
+    //       }
+    //     }
+    //   ]).toArray();
+    //   const totalFunds = result.length > 0 ? result[0].totalRevenue : 0;
+      
+    //   res.send({users, donationRequests, fundingContributor, totalFunds})
+    // })
+    app.get("/admin-stats", verifyToken, verifyAdminVolunteer, async (req, res) => {
+      try {
+        // Retrieve donor users efficiently using aggregation pipeline
+        const donorCount = await usersCollection.aggregate([
+          {
+            $match: { role: "donor" } // Filter for users with "donor" status
+          },
+          { $count: "donorCount" } // Count matching documents
+        ]).toArray();
+    
+        const totalDonors = donorCount.length > 0 ? donorCount[0].donorCount : 0;
+    
+        // Fetch other statistics with potential type conversion
+        const users = await usersCollection.estimatedDocumentCount();
+        const donationRequests = await donationRequestsCollection.estimatedDocumentCount();
+        const fundingContributors = await paymentsCollection.estimatedDocumentCount();
+    
+        const totalFundsResult = await paymentsCollection.aggregate([
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: { $convert: { input: "$fundAmount", to: "decimal" } } }
+              //totalRevenue: { $sum: '$fundAmount'}
+            }
+          }
+        ]).toArray();
+        const totalFunds = totalFundsResult.length > 0 ? totalFundsResult[0].totalRevenue : 0;
+    
+        res.send({ users, donationRequests, fundingContributors, totalFunds, totalDonors});
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Error retrieving admin statistics" });
+      }
+    });
+    
     
     // Send a ping to confirm a successful connection
     //await client.db("admin").command({ ping: 1 });
