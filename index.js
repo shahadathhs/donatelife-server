@@ -48,7 +48,8 @@ async function run() {
     const usersCollection = database.collection("users");
     const contactUsCollection = database.collection("contactUs");
     const blogsCollection = database.collection("blogs");
-    const donationRequestsCollection = database.collection("donationRequests")
+    const donationRequestsCollection = database.collection("donationRequests");
+    const paymentsCollection = database.collection("payments");
 
     // jwt related api
     app.post('/jwt', async (req, res) => {
@@ -389,6 +390,41 @@ async function run() {
     app.post("/contactUs", async(req,res) => {
       const contact = req.body;
       const result = await contactUsCollection.insertOne(contact)
+      res.send(result)
+    })
+
+    //payment related api
+    //payment intent
+    app.post("/create-payment-intent", verifyToken, async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100); // Amount in cents
+      try {
+        // Create a PaymentIntent with the order amount and currency
+        const paymentIntent = await stripeInstance.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ["card", "link"],
+        });
+    
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+        console.log('Payment SUCCESS', req.body)
+      } catch (error) {
+        console.error('Error creating payment intent:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+      }
+    });
+    // inserting payment in database
+    app.post('/payments', verifyToken, async(req, res) => {
+      const payment = req.body;
+      const paymentResult = await paymentsCollection.insertOne(payment);
+      console.log("payment saved",payment)
+      res.send(paymentResult)
+    })
+    // loading payment in funding page
+    app.get("/payments", verifyToken, async(req, res) => {
+      const result = await paymentsCollection.find().toArray();
       res.send(result)
     })
     
