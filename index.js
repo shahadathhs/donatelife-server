@@ -361,6 +361,13 @@ async function run() {
         res.status(500).send({ message: 'Error fetching pending requests', error });
       }
     })
+    // for single user donation request
+    app.get("/donationRequests", verifyToken, async(req, res) => {
+      const email = req.query.email;
+      const query = {requesterEmail : email}
+      const result = await donationRequestsCollection.find(query).toArray();
+      res.send(result)
+    })
     // for donationDetails page
     app.get("/donationRequests/:id", async (req, res) => {
       const id = req.params.id;
@@ -383,7 +390,30 @@ async function run() {
       const result = await donationRequestsCollection.updateOne(query, update);
       res.send(result)
     })
-    
+    // making inprogress done
+    app.patch("/donationRequests/done/:id", verifyToken, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'done'
+        },
+      };
+      const result = await donationRequestsCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
+    // making inprogress cancel
+    app.patch("/donationRequests/cancel/:id", verifyToken, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const updateDoc = {
+        $set: {
+          status: 'cancel'
+        },
+      };
+      const result = await donationRequestsCollection.updateOne(query, updateDoc);
+      res.send(result)
+    })
 
     // contact us related api
     // for message
