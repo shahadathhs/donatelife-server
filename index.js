@@ -368,6 +368,24 @@ async function run() {
       const result = await donationRequestsCollection.find(query).toArray();
       res.send(result)
     })
+    // for single user donation request (all with filter)
+    app.get("/myDonationRequests", verifyToken, async (req, res) => {
+      const email = req.query.email;
+      const status = req.query.status;
+      // Initialize the query object with requesterEmail
+      let query = { requesterEmail: email };
+      // Add status to the query if provided and not equal to 'all'
+      if (status && status !== 'all') {
+          query.status = status;
+      }
+      try {
+        const result = await donationRequestsCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: 'An error occurred while fetching the donation requests.' });
+      }
+  });
+  
     // for donationDetails page
     app.get("/donationRequests/:id", async (req, res) => {
       const id = req.params.id;
