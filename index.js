@@ -414,6 +414,36 @@ async function run() {
       const result = await donationRequestsCollection.updateOne(query, updateDoc);
       res.send(result)
     })
+    // deleting single request
+    app.delete("/donationRequests/:id", verifyToken, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const result = await donationRequestsCollection.deleteOne(query);
+      res.send(result)
+    })
+    // for editing donation requests
+    app.patch("/editingRequests/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const { 
+        requesterName, requesterEmail,
+        recipientName, recipientBloodGroup,
+        recipientDistrict, recipientUpazila,
+        hospital, fullAddress,
+        requesterMessage, donationDate, donationTime
+      } = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          requesterName, requesterEmail,
+          recipientName, recipientBloodGroup,
+          recipientDistrict, recipientUpazila,
+          hospital, fullAddress,
+          requesterMessage, donationDate, donationTime
+        }
+      };
+      const result = await donationRequestsCollection.updateOne(query, update);
+      res.send(result)
+    })
 
     // contact us related api
     // for message
