@@ -16,6 +16,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "https://donatelife-f661c.web.app",
+      "https://donatelife-f661c.firebaseapp.com"
     ],
     credentials: true,
   })
@@ -256,7 +258,31 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: 'Error fetching donors', error });
       }
-    });
+    })
+    // updating profile
+    // for editing donation requests
+    app.patch("/updatingProfile/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const { name, bloodGroup, district, upazila, photo } = req.body;
+      
+      const query = { _id: new ObjectId(id) };
+      const update = {
+          $set: {
+              name,
+              bloodGroup,
+              district,
+              upazila,
+              photo
+          }
+      };
+      
+      try {
+          const result = await usersCollection.updateOne(query, update);
+          res.send(result);
+      } catch (error) {
+          res.status(500).send({ message: "Failed to update profile", error });
+      }
+    })  
 
     //blog related api
     // for add blogs
@@ -399,7 +425,7 @@ async function run() {
       } catch (error) {
           res.status(500).send({ error: 'An error occurred while fetching the donation requests.' });
       }
-  });
+    });
   
     // for donationDetails page
     app.get("/donationRequests/:id", async (req, res) => {
@@ -523,24 +549,7 @@ async function run() {
 
     // dash board stats for admin and volunteer
     // stats related api
-    // app.get("/admin-stats", verifyToken, verifyAdmin, async(req, res) => {
-    //   const users = await usersCollection.estimatedDocumentCount();
-    //   const donationRequests = await donationRequestsCollection.estimatedDocumentCount();
-    //   const fundingContributor = await paymentsCollection.estimatedDocumentCount();
-
-    //   const result = await paymentsCollection.aggregate([
-    //     {
-    //       $group: {
-    //         _id: null,
-    //         totalRevenue: { $sum: '$fundAmount'}
-    //       }
-    //     }
-    //   ]).toArray();
-    //   const totalFunds = result.length > 0 ? result[0].totalRevenue : 0;
-      
-    //   res.send({users, donationRequests, fundingContributor, totalFunds})
-    // })
-    app.get("/admin-stats", verifyToken, verifyAdminVolunteer, async (req, res) => {
+    app.get("/admin-stats", verifyToken, async (req, res) => {
       try {
         // Retrieve donor users efficiently using aggregation pipeline
         const donorCount = await usersCollection.aggregate([
@@ -561,8 +570,8 @@ async function run() {
           {
             $group: {
               _id: null,
-              totalRevenue: { $sum: { $convert: { input: "$fundAmount", to: "decimal" } } }
-              //totalRevenue: { $sum: '$fundAmount'}
+              //totalRevenue: { $sum: { $convert: { input: "$fundAmount", to: "decimal" } } }
+              totalRevenue: { $sum: '$fundAmount'}
             }
           }
         ]).toArray();
