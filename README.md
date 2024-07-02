@@ -5,11 +5,6 @@
 
 - [DonateLife](https://donatelife-f661c.web.app)
 
-## Admin Credentials
-
-- **User Email:** admin@gmail.com
-- **Password:** 123@as
-
 ## Tools & Technology
 
 - Node.js
