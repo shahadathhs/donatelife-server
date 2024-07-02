@@ -1,16 +1,13 @@
 
 # DonateLife | Every Drops Count
 
-## Live Site URL
+- Live Site URL: [DonateLife](https://donatelife-f661c.web.app)
 
-- [DonateLife](https://donatelife-f661c.web.app)
-
-## Tools & Technology
-
-- Node.js
-- MongoDB
-- Express.js
-- JSON Web Token
+- Tools & Technology
+   - Node.js
+   - MongoDB
+   - Express.js
+   - JSON Web Token
 
 ## How to run locally
 
@@ -43,6 +40,7 @@ cd donatelife-server
 ```bash
 npm install
 ```
+or
 
 ```bash
 node index.js
