@@ -29,13 +29,13 @@
 1. **Clone the backend repository**
 
 ```bash
-git clone <https://github.com/shahadathhs/donatelife-server>
+git clone https://github.com/shahadathhs/donatelife-server
 ```
 
 2. **Navigate to the project directory**
 
 ```bash
-cd <donatelife-server>
+cd donatelife-server
 ```
 
 3. **Install dependencies**
