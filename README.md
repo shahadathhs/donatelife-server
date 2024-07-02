@@ -8,6 +8,7 @@
    - MongoDB
    - Express.js
    - JSON Web Token
+   - Stripe Payment Method
 
 ## How to run locally
 
@@ -40,11 +41,6 @@ cd donatelife-server
 ```bash
 npm install
 ```
-or
-
-```bash
-node index.js
-```
 
 4. **Create a `.env` file in the root directory and add the following environment variables:**
 
@@ -59,6 +55,16 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 
 ```bash
 npm start
+```
+or
+
+```bash
+node index.js
+```
+or
+
+```bash
+nodemon index.js
 ```
 
 ## Contributing
